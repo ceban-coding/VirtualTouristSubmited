@@ -27,3 +27,6 @@ View location photo
 ## Images
 
 <img src="Images/img1.png">
+<img src="Images/img2.png">
+
+
