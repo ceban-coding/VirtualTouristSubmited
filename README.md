@@ -26,4 +26,4 @@ View location photo
 
 ## Images
 
-<img src="Images/IMG_6270.PNG">
+<img src="Images/img1.png">
