@@ -55,9 +55,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         activityIndicator.startAnimating()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
+    
     
     //MARK: - Fetch Core Data
     fileprivate func loadSavedData() -> [Photo]? {
@@ -94,6 +92,7 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     
     // Make a call to FlikrClient
     func getFlickrPhoto() {
+        
         FlickrClient.shared.getFlickrPhotos(lat: currentLatitude!, lon: currentLongitude!, page: 1, completion: { (photos, error) in
             if let error = error {
                 DispatchQueue.main.async {
@@ -143,17 +142,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         })
     }
     
-    // Alert  message method
-    func showAlertMessage() {
-        let alertVc = UIAlertController(title: "Error", message: "Error retrieving data", preferredStyle: .alert)
-        alertVc.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-        self.present(alertVc, animated: true)
-    }
-    
-    
     // Save photos to coreData
     func savePhotoToCoreData(photos: [FlickrPhoto]) {
-        
         for flickrPhoto in photos {
             let photo = Photo(context: DataController.shared.viewContext)
             photo.imageURL = flickrPhoto.imageURLString()
@@ -164,20 +154,16 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     func deleteExistingCoreDataPhoto() {
-        
         for image in savedPhotoObjects {
             DataController.shared.viewContext.delete(image)
         }
     }
-    
-    
     
     func showNewResult() {
         deleteExistingCoreDataPhoto()
         savedPhotoObjects.removeAll()
         getFlickrPhoto()
     }
-    
     
     func showSavedResult() {
         DispatchQueue.main.async {
@@ -187,15 +173,12 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     
     //MARK: - UICollectionView: Select Multiple items & delete UICollectionViewCell
     
-    
     // Define enum points
     enum Mode {
         case view
         case select
     }
     
-    
-   
     
     //Switch selected button on selection
     var mMode: Mode = .view {
@@ -274,8 +257,6 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         activityIndicator.stopAnimating()
     }
     
-    
-    
 }
 
 //MARK: - Set up MapView Delegate
@@ -316,8 +297,9 @@ extension PhotoAlbumViewController: UICollectionViewDelegateFlowLayout, UICollec
         
         let photoObject = savedPhotoObjects[indexPath.row]
         activityIndicator.stopAnimating()
+        cell.photoImage.image = UIImage(named: "placeholder-image")
         cell.initWithPhoto(photoObject)
-        
+       
        
     return cell
     }
@@ -361,5 +343,14 @@ extension PhotoAlbumViewController: UICollectionViewDelegateFlowLayout, UICollec
     
 }
 
+//MARK: - Alert Message Method
 
+extension PhotoAlbumViewController {
+    // Alert  message method
+    func showAlertMessage() {
+        let alertVc = UIAlertController(title: "Error", message: "Error retrieving data", preferredStyle: .alert)
+        alertVc.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+        self.present(alertVc, animated: true)
+    }
+}
 
