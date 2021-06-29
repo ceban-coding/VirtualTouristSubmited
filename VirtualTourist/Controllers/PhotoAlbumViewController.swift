@@ -171,6 +171,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         }
     }
     
+    
+    
     //MARK: - UICollectionView: Select Multiple items & delete UICollectionViewCell
     
     // Define enum points
@@ -294,13 +296,14 @@ extension PhotoAlbumViewController: UICollectionViewDelegateFlowLayout, UICollec
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FlickrViewCell", for: indexPath) as! FlickrViewCell
-        
+       
+       
         let photoObject = savedPhotoObjects[indexPath.row]
         activityIndicator.stopAnimating()
-        cell.photoImage.image = UIImage(named: "placeholder-image")
+        cell.photoImage.image = UIImage(named: "photo_placeholder")
         cell.initWithPhoto(photoObject)
-       
-       
+   
+        
     return cell
     }
     
