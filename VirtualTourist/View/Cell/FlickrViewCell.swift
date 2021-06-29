@@ -47,7 +47,6 @@ class FlickrViewCell: UICollectionViewCell {
     
     //Download Images
     func downloadImage(_ photo: Photo) {
-        
         URLSession.shared.dataTask(with: URL(string: photo.imageURL!)!) { (data, response, error) in
             if error == nil {
                 DispatchQueue.main.async {
@@ -60,7 +59,6 @@ class FlickrViewCell: UICollectionViewCell {
 
     //Save Image to core data
     func saveImageDataToCoreData(_ photo: Photo, imageData: Data) {
-        
         do {
             photo.imageData = imageData
             try DataController.shared.viewContext.save()
