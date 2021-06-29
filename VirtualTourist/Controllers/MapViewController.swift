@@ -129,13 +129,15 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
             render(location)
         }
     }
-    
+
     func render(_ location: CLLocation) {
         let coordinate = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
         let region = MKCoordinateRegion(center: coordinate, span: span)
         mapView.setRegion(region, animated: true)
     }
+    
+    
     
     //MARK: - Map view functions
     
@@ -147,8 +149,16 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
     let myCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: locationLat!, longitude: locationLon!)
     let selectedPin: MKPointAnnotation = MKPointAnnotation()
     selectedPin.coordinate = myCoordinate
-    vc.currentLatitude = myCoordinate.latitude
-    vc.currentLongitude = myCoordinate.longitude
+    
+    
+    for pin in annotations {
+        if pin.lat == selectedPin.coordinate.latitude &&
+            pin.long == selectedPin.coordinate.longitude {
+            vc.pin = pin
+        }
+        vc.currentLatitude = pin.lat
+        vc.currentLongitude = pin.long
+    }
     navigationController?.pushViewController(vc, animated: true)
     }
 

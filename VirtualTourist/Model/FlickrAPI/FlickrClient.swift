@@ -18,7 +18,6 @@ class FlickrClient {
     var flickrBase = "https://api.flickr.com/services/rest/"
     var flickrSearch = "flickr.photos.search"
     
-    var flickrObjects: [FlickrPhoto] = []
     
     func getFlickrPhotos(lat: Double, lon: Double, page: Int, completion: @escaping ([FlickrPhoto]?, Error?) -> Void) {
         
@@ -72,3 +71,5 @@ class FlickrClient {
     }
     
 }
+
+

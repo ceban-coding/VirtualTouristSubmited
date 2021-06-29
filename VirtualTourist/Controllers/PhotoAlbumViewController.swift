@@ -26,10 +26,10 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     var currentLatitude: Double?
     var currentLongitude: Double?
     var pin: Pin!
+    var savedPhotoObjects = [Photo]()
     var flickrPhotos: [FlickrPhoto] = []
     let numbersOfColumns: CGFloat = 3
     var fetchedResultsController: NSFetchedResultsController<Photo>!
-    var savedPhotoObjects = [Photo]()
     var dictionarySelectedIndexPath: [IndexPath: Bool] = [:]
     
     
@@ -41,11 +41,18 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         mapView.delegate = self
         collectionView.delegate = self
         collectionView.dataSource = self
-        setCenter()
-        getFlickrPhoto()
-        activityIndicator.startAnimating()
         setupBarButtonItems()
-        loadSavedData()
+        
+        //reload saved data
+        let savedPhotos = loadSavedData()
+        if savedPhotos != nil && savedPhotos?.count != 0 {
+            savedPhotoObjects = savedPhotos!
+            showSavedResult()
+        } else {
+            showNewResult()
+        }
+        setCenter()
+        activityIndicator.startAnimating()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -53,8 +60,8 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     //MARK: - Fetch Core Data
-    fileprivate func loadSavedData() {
-        if fetchedResultsController == nil {
+    fileprivate func loadSavedData() -> [Photo]? {
+        var photoArray: [Photo] = []
             let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
             let predicate = NSPredicate(format: "pin == %@", argumentArray: [pin!])
             fetchRequest.predicate = predicate
@@ -62,13 +69,22 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
             fetchRequest.sortDescriptors = [sortDescriptor]
             
             
-            fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
             fetchedResultsController.delegate = self
-        }
+        
         do {
             try fetchedResultsController.performFetch()
+            let photoCount = try fetchedResultsController.managedObjectContext.count(for: fetchedResultsController.fetchRequest)
+            
+            for index in 0..<photoCount {
+                
+                photoArray.append(fetchedResultsController.object(at: IndexPath(row: index, section: 0)))
+            }
+            return photoArray
+            
         } catch {
             print("error performing fetch")
+            return nil
         }
     }
   
@@ -91,8 +107,10 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
                     DispatchQueue.main.async {
                         self.flickrPhotos = photos
                         self.savePhotoToCoreData(photos: photos)
-                        self.collectionView.reloadData()
                         self.activityIndicator.stopAnimating()
+                        self.collectionView.reloadData()
+                        self.savedPhotoObjects = self.loadSavedData()!
+                        self.showSavedResult()
                     }
                 }
             }
@@ -112,13 +130,32 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         
         for flickrPhoto in photos {
             let photo = Photo(context: DataController.shared.viewContext)
-            if let url = URL(string: flickrPhoto.imageURLString()) {
-              photo.imageData = try? Data(contentsOf: url)
-            }
             photo.imageURL = flickrPhoto.imageURLString()
             photo.pin = pin
             savedPhotoObjects.append(photo)
             DataController.shared.save()
+        }
+    }
+    
+    func deleteExistingCoreDataPhoto() {
+        
+        for image in savedPhotoObjects {
+            DataController.shared.viewContext.delete(image)
+        }
+    }
+    
+    
+    
+    func showNewResult() {
+        deleteExistingCoreDataPhoto()
+        savedPhotoObjects.removeAll()
+        getFlickrPhoto()
+    }
+    
+    
+    func showSavedResult() {
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
         }
     }
     
@@ -190,23 +227,10 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
                     }
                 }
             }
-            
+            savedPhotoObjects = loadSavedData()!
             showSavedResult()
     
         }
-        
-    
-    func showSavedResult() {
-        
-        DispatchQueue.main.async {
-            
-            self.collectionView.reloadData()
-        }
-    }
-        
-    
-       dictionarySelectedIndexPath.removeAll()
-        
     }
     
     // Setup bar buttonItem method
@@ -250,37 +274,23 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
 extension PhotoAlbumViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+        return 1
     }
     
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            return fetchedResultsController.sections?[section].numberOfObjects ?? 0
-        default:
-            return flickrPhotos.count
-        }
+        return savedPhotoObjects.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FlickrViewCell", for: indexPath) as! FlickrViewCell
         
-        switch indexPath.section {
-        case 0:
-            let photoObject = fetchedResultsController.object(at: indexPath)
-            DispatchQueue.main.async {
-                let image = UIImage(data: photoObject.imageData! as Data)
-                cell.photoImage.image = image
-            }
-        default:
-            let shuffledFlickrPhotos = flickrPhotos.shuffled()
-            if let url = URL(string: shuffledFlickrPhotos[indexPath.row].imageURLString()) {
-                cell.setupCell(url: url)
-            }
-        }
+        let photoObject = savedPhotoObjects[indexPath.row]
+        activityIndicator.stopAnimating()
+        cell.initWithPhoto(photoObject)
         
-        return cell
+       
+    return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

@@ -32,51 +32,51 @@ class FlickrViewCell: UICollectionViewCell {
     }
     
     
-//    func setImageFrom(url: URL, placeholderImage: UIImage? = nil, completionHandler: @escaping (UIImage?, Error?) -> Void) {
-//
-//        if let placeholderImage = placeholderImage {
-//            photoImage.image = placeholderImage
-//        }
-//
-//        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-//            guard let data = data else {
-//                completionHandler(nil, error)
-//                return }
-//
-//            let image = UIImage(data: data)
-//            completionHandler(image, nil)
+    
+//    func setupCell(url: URL) {
+//        let task = URLSession.shared.dataTask(with: url) { (data, _, _) in
+//            DispatchQueue.main.async {
+//                if let data = data, let image = UIImage(data: data) {
+//                    self.photoImage.image = image
+//                }
+//            }
 //        }
 //        task.resume()
 //    }
+//
     
-    func setupCell(url: URL) {
-        let task = URLSession.shared.dataTask(with: url) { (data, _, _) in
+    func initWithPhoto(_ photo: Photo) {
+        if photo.imageData != nil {
             DispatchQueue.main.async {
-                if let data = data, let image = UIImage(data: data) {
-                    self.photoImage.image = image
+                self.photoImage.image = UIImage(data: photo.imageData! as Data)
+            }
+        } else {
+            downloadImage(photo)
+        }
+    }
+    
+    //Download Images
+    
+    func downloadImage(_ photo: Photo) {
+        
+        URLSession.shared.dataTask(with: URL(string: photo.imageURL!)!) { (data, response, error) in
+            if error == nil {
+                DispatchQueue.main.async {
+                    self.photoImage.image = UIImage(data: data! as Data)
                 }
             }
         }
-        task.resume()
+        .resume()
     }
+
     
-    
-//    func handleImageResponse(imageData: FlickrPhoto?, error: Error?) {
-//        guard let imageMessage = URL(string: (imageData?.imageURLString())!) else {
-//                   print("cannot print URL")
-//                   return
-//               }
-//        setImageFrom(url: imageMessage, placeholderImage: #imageLiteral(resourceName: "film-reel"), completionHandler: handleImageFileResponse(image:error:))
-//    }
-//    
-//    func handleImageFileResponse(image: UIImage?, error: Error?) {
-//        DispatchQueue.main.async {
-//            if let error = error {
-//                print(error)
-//            } else {
-//                self.photoImage.image = image
-//            }
-//        }
-//    }
-  
+    func saveImageDataToCoreData(_ photo: Photo, imageData: Data) {
+        
+        do {
+            photo.imageData = imageData
+            try DataController.shared.viewContext.save()
+        } catch {
+            print("saving photo image failed")
+        }
+    }
 }
