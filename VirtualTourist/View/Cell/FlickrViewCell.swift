@@ -33,18 +33,8 @@ class FlickrViewCell: UICollectionViewCell {
     
     
     
-//    func setupCell(url: URL) {
-//        let task = URLSession.shared.dataTask(with: url) { (data, _, _) in
-//            DispatchQueue.main.async {
-//                if let data = data, let image = UIImage(data: data) {
-//                    self.photoImage.image = image
-//                }
-//            }
-//        }
-//        task.resume()
-//    }
-//
-    
+
+    //Initiate photo
     func initWithPhoto(_ photo: Photo) {
         if photo.imageData != nil {
             DispatchQueue.main.async {
@@ -56,7 +46,6 @@ class FlickrViewCell: UICollectionViewCell {
     }
     
     //Download Images
-    
     func downloadImage(_ photo: Photo) {
         
         URLSession.shared.dataTask(with: URL(string: photo.imageURL!)!) { (data, response, error) in
@@ -69,7 +58,7 @@ class FlickrViewCell: UICollectionViewCell {
         .resume()
     }
 
-    
+    //Save Image to core data
     func saveImageDataToCoreData(_ photo: Photo, imageData: Data) {
         
         do {

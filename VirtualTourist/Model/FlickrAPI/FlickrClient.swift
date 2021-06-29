@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class FlickrClient {
     
@@ -69,6 +70,9 @@ class FlickrClient {
         }
         task.resume()
     }
+    
+
+    
     
 }
 

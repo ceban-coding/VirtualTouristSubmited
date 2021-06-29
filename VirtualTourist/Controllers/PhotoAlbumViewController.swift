@@ -117,6 +117,32 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
         })
     }
     
+    fileprivate func getRandomImages() {
+        let random = Int.random(in: 2...4)
+        FlickrClient.shared.getFlickrPhotos(lat: currentLatitude!, lon: currentLongitude!, page: random, completion: { photos, error in
+                
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.activityIndicator.stopAnimating()
+                    self.showAlertMessage()
+                    print(error.localizedDescription)
+                }
+            } else {
+                if let photos = photos {
+                    
+                    DispatchQueue.main.async {
+                        self.flickrPhotos = photos
+                        self.savePhotoToCoreData(photos: photos)
+                        self.activityIndicator.stopAnimating()
+                        self.savedPhotoObjects = self.loadSavedData()!
+                        self.showSavedResult()
+                    }
+                }
+            }
+            
+        })
+    }
+    
     // Alert  message method
     func showAlertMessage() {
         let alertVc = UIAlertController(title: "Error", message: "Error retrieving data", preferredStyle: .alert)
@@ -242,7 +268,10 @@ class PhotoAlbumViewController: UIViewController, NSFetchedResultsControllerDele
     //MARK: - Action Buttons
     
     @IBAction func newCollectionButtonPressed(_ sender: Any) {
-        collectionView.reloadData()
+        activityIndicator.startAnimating()
+        deleteExistingCoreDataPhoto()
+        getRandomImages()
+        activityIndicator.stopAnimating()
     }
     
     
