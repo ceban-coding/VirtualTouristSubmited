@@ -6,7 +6,8 @@ Virtual Tourist is a project completed as part of Udacity iOS Developer Nanodegr
 - Collectionv view implementation .
 - Api request
 
-## Note: For run app, please use your Flickr API and Secret number. ( API from the project it's no more valid).
+## Note: 
+### For run app, please use your Flickr API and Secret number. ( API from the project it's no more valid).
 
 Aditional learning:
 
