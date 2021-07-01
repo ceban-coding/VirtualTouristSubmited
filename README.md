@@ -9,10 +9,11 @@ Virtual Tourist is a project completed as part of Udacity iOS Developer Nanodegr
 ## Note: 
 ### For run app, please use your Flickr API and Secret number. ( API from the project it's no more valid).
 
-Aditional learning:
+## Aditional learning:
 
 - Custom MKAnnotationView
 - Built views for droping pin on the map view, edit/delete in the photo collection view.
+
 
 ## Fumctionality
 
