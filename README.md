@@ -6,8 +6,6 @@ Virtual Tourist is a project completed as part of Udacity iOS Developer Nanodegr
 - Collectionv view implementation .
 - Api request
 
-## Note: 
-### For run app, please use your Flickr API and Secret number. ( API from the project it's no more valid).
 
 ## Aditional learning:
 
@@ -27,6 +25,9 @@ View location photo
 - If the loction have been view before, photos wil be fetched from Core Data.
 - If it's new location photos are downloaded from flickr API.
 - Photos can be removed from collection view and Core Data
+
+## Note: 
+For run app, please use your Flickr API and Secret number. ( API from the project it's no more valid).
 
 ## Images
 
